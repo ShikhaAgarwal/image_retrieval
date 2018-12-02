@@ -13,8 +13,6 @@ import copy
 import h5py
 from image_folder import MyImageFolder
 
-# plt.ion()  
-
 use_gpu = torch.cuda.is_available()
 if use_gpu:
     print("Using CUDA")
@@ -34,7 +32,6 @@ out_features_size = 4096
 # dataset_name = "consumer_feature"
 # image_dataset_name = "consumer_feature_image"
 
-# print [os.path.join(data_dir, x) for x in [TRAIN, VAL, TEST]]
 # VGG-16 Takes 224x224 images as input, so we resize all of them
 data_transforms = {
     TRAIN: transforms.Compose([
