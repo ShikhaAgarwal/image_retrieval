@@ -85,7 +85,7 @@ layers = list(pre_model.classifier.children())[0]
 pre_model.classifier = nn.Sequential(*[layers])
 # model.features = pre_model.features
 
-for param in pre_model.parameters():    #----> 1
+for param in pre_model.parameters():
     param.requires_grad = False
 
 def get_path_to_filename(paths):
