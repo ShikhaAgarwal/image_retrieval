@@ -11,6 +11,7 @@ import matplotlib.pyplot as plt
 import os
 import copy
 import h5py
+from image_folder import MyImageFolder
 
 # plt.ion()  
 
@@ -23,11 +24,17 @@ TRAIN = 'train'
 VAL = 'val'
 TEST = 'test'
 batch_size = 3
-# ---- PLEASE CHANGE FILE NAME BELOW ----
-phase = TRAIN
 out_features_size = 4096
 
-print [os.path.join(data_dir, x) for x in [TRAIN, VAL, TEST]]
+# phase = TRAIN
+# dataset_name = "shop_feature"
+# image_dataset_name = "shop_feature_image"
+
+# phase = TEST
+# dataset_name = "consumer_feature"
+# image_dataset_name = "consumer_feature_image"
+
+# print [os.path.join(data_dir, x) for x in [TRAIN, VAL, TEST]]
 # VGG-16 Takes 224x224 images as input, so we resize all of them
 data_transforms = {
     TRAIN: transforms.Compose([
@@ -48,7 +55,7 @@ data_transforms = {
 }
 
 image_datasets = {
-    x: datasets.ImageFolder(
+    x: MyImageFolder(
         os.path.join(data_dir, x), 
         transform=data_transforms[x]
     )
@@ -84,21 +91,32 @@ pre_model.classifier = nn.Sequential(*[layers])
 for param in pre_model.parameters():    #----> 1
     param.requires_grad = False
 
+def get_path_to_filename(paths):
+    filenames = []
+    for p in paths:
+        f = p.split('/')[-1].split('.')[0]
+        filenames.append(f)
+    return filenames
+
 # get the features as matrix for each image
 # ------- SHOP -------
 num_samples = dataset_sizes[phase]
-train_result = np.zeros((num_samples, out_features_size))
+result = np.zeros((num_samples, out_features_size))
+result_filename = []
 i = 0
 for data in dataloaders[phase]:
-    inputs, labels = data
+    inputs, labels, paths = data
+    filenames = get_path_to_filename(paths)
+    result_filename += filenames
     inputs, labels = Variable(inputs), Variable(labels)
     outputs = pre_model(inputs)
     print outputs.shape
     start = i
     end = i+batch_size
-    train_result[start:end, :] = outputs
+    result[start:end, :] = outputs
     i += batch_size
 
 file_name = data_dir+phase+'_feature.h5'
 with h5py.File(file_name, 'w') as hf:
-    hf.create_dataset("shop_feature",  data=train_result)
+    hf.create_dataset(dataset_name, data=result)
+    hf.create_dataset(image_dataset_name, data=result_filename)

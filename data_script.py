@@ -2,7 +2,7 @@ import os
 from shutil import copyfile
 
 data_input = "/Users/shikha/Downloads/dataset/img/DRESSES/Skirt/"
-data_output = "/Users/shikha/Documents/Fall2018/ComputerVision/Project/dataset/"
+data_output = "/Users/shikha/Documents/Fall2018/ComputerVision/Project/image_retrieval/dataset/"
 suffix_input = "_01.jpg"
 files = ["shop", "comsumer"]
 
