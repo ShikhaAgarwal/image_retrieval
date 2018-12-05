@@ -1,18 +1,17 @@
 import cv2
+import os
 from collections import defaultdict
+from shutil import copyfile
 
 data_dir = '/Users/shikha/Documents/Fall2018/ComputerVision/Project/image_retrieval/dataset/'
-TRAIN = 'train'
-VAL = 'val'
-TEST = 'test'
-
+dest_dir = '/Users/shikha/Documents/Fall2018/ComputerVision/Project/image_retrieval/dataset/train/'
 anno_file = data_dir + 'meta/Anno/list_bbox_consumer2shop.txt'
 category = 'DRESSES'
-img_file = data_dir + 'train/1/00000396.jpg'
 
 i=0
-shop_bbox = defaultdict(defaultdict)
-consumer_bbox = defaultdict(defaultdict)
+shop_bbox = defaultdict(int)
+consumer_bbox = defaultdict(int)
+path_dict = defaultdict(list)
 with open(anno_file,'rb') as f_in:
     for line in f_in:
         if i < 2:
@@ -23,19 +22,43 @@ with open(anno_file,'rb') as f_in:
         bbox = splitLine[-4:]
         if path[1] != category:
             continue
-        sub_category = path[2]
-        img_id = path[3]
-        print path
-        if "shop" in path[-1]:
-            shop_bbox[sub_category][img_id] = bbox
-        else:
-            consumer_bbox[sub_category][img_id] = bbox
-            # print consumer_bbox
 
-x1 = 035
-y1 = 014
-x2 = 185
-y2 = 121
+        img_id = path[3]
+        path_dict[splitLine[0]] = bbox
+        key = '/'.join(path[:-1])
+        if "shop" in path[-1]:
+            shop_bbox[key] += 1
+        else:
+            consumer_bbox[key] += 1
+
+# path is not a list here
+for path, bbox in path_dict.items():
+    x1 = int(bbox[0])
+    y1 = int(bbox[1])
+    x2 = int(bbox[2])
+    y2 = int(bbox[3])
+
+    path_list = path.split('/')
+    key = '/'.join(path_list[:-1])
+    if shop_bbox[key] < 1 or consumer_bbox[key] < 1:
+        continue
+
+    img_file = os.path.join(data_dir, path)
+    # print img_file
+    img = cv2.imread(img_file)
+    crop_img = img[y1:y2, x1:x2]
+
+    dest = '/'.join(path_list[2:])
+    dest = os.path.join(dest_dir, dest)
+
+    dest_list = dest.split('/')
+    dest_list = '/'.join(dest_list[:-1])
+    dest_list += '/'
+    if not os.path.exists(dest_list):
+        os.makedirs(dest_list)
+
+    cv2.imwrite(dest, crop_img)
+
 
 # img = cv2.imread(img_file)
 # cv2.imshow("original", img)
