@@ -12,6 +12,7 @@ import os
 import copy
 import h5py
 from image_folder import MyImageFolder
+from deep_fashion_dataset import DeepFashionDataset
 
 use_gpu = torch.cuda.is_available()
 if use_gpu:
@@ -21,12 +22,12 @@ data_dir = '/Users/shikha/Documents/Fall2018/ComputerVision/Project/image_retrie
 TRAIN = 'train'
 VAL = 'val'
 TEST = 'test'
-batch_size = 3
+batch_size = 1
 out_features_size = 4096
 
-# phase = TRAIN
-# dataset_name = "shop_feature"
-# image_dataset_name = "shop_feature_image"
+phase = TRAIN
+dataset_name = "shop_feature"
+image_dataset_name = "shop_feature_image"
 
 # phase = TEST
 # dataset_name = "consumer_feature"
@@ -52,7 +53,7 @@ data_transforms = {
 }
 
 image_datasets = {
-    x: MyImageFolder(
+    x: DeepFashionDataset(
         os.path.join(data_dir, x), 
         transform=data_transforms[x]
     )
@@ -102,7 +103,9 @@ result = np.zeros((num_samples, out_features_size))
 result_filename = []
 i = 0
 for data in dataloaders[phase]:
-    inputs, labels, paths = data
+    print data
+    break
+    anchor, pos_sample, neg_sample, target, path = data
     filenames = get_path_to_filename(paths)
     result_filename += filenames
     inputs, labels = Variable(inputs), Variable(labels)
@@ -113,7 +116,7 @@ for data in dataloaders[phase]:
     result[start:end, :] = outputs
     i += batch_size
 
-file_name = data_dir+phase+'_feature.h5'
-with h5py.File(file_name, 'w') as hf:
-    hf.create_dataset(dataset_name, data=result)
-    hf.create_dataset(image_dataset_name, data=result_filename)
+# file_name = data_dir+phase+'_feature.h5'
+# with h5py.File(file_name, 'w') as hf:
+#     hf.create_dataset(dataset_name, data=result)
+#     hf.create_dataset(image_dataset_name, data=result_filename)
