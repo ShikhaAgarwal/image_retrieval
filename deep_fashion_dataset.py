@@ -23,16 +23,6 @@ class DeepFashionDataset(data.Dataset):
 
         self.transform = transform
 
-        # self.path = path
-        # self.labels = os.listdir(path)
-        # self.transform = transform
-        # self.data = []
-        # self.
-        # for l in self.labels:
-        #     p = os.path.join(path, l)
-        #     for root_, dirs, files in os.walk(p):
-        #         self.data += dirs
-
     def loader(self, path):
         # open path as file to avoid ResourceWarning (https://github.com/python-pillow/Pillow/issues/835)
         with open(path, 'rb') as f:

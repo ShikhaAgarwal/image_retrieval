@@ -82,6 +82,7 @@ print(image_datasets[TRAIN].classes)
 model_urls['vgg19_bn'] = model_urls['vgg19_bn'].replace('https://', 'http://')
 pre_model = torchvision.models.vgg19_bn(pretrained=True)
 # model takes all the layers except the last classification layer
+print pre_model
 layers = list(pre_model.classifier.children())[0]
 pre_model.classifier = nn.Sequential(*[layers])
 # model.features = pre_model.features

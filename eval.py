@@ -1,5 +1,6 @@
 
 data_dir = '/Users/shikha/Documents/Fall2018/ComputerVision/Project/image_retrieval/dataset/'
+# data_dir = '/mnt/nfs/scratch1/snehabhattac/vision_data/copied_data/DRESSES/Dress/'
 output_file = data_dir + "output"
 
 test_images = []

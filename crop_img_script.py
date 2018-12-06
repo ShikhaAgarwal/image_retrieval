@@ -8,6 +8,11 @@ dest_dir = '/Users/shikha/Documents/Fall2018/ComputerVision/Project/image_retrie
 anno_file = data_dir + 'meta/Anno/list_bbox_consumer2shop.txt'
 category = 'DRESSES'
 
+data_dir = '/mnt/nfs/scratch1/snehabhattac/vision_data/'
+dest_dir = '/mnt/nfs/scratch1/snehabhattac/vision_data/train/'
+anno_file = data_dir + 'meta/Anno/list_bbox_consumer2shop.txt'
+category = 'DRESSES'
+
 i=0
 shop_bbox = defaultdict(int)
 consumer_bbox = defaultdict(int)

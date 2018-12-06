@@ -5,6 +5,7 @@ from collections import defaultdict
 import numpy as np
 
 data_dir = '/Users/shikha/Documents/Fall2018/ComputerVision/Project/image_retrieval/dataset/'
+# data_dir = '/mnt/nfs/scratch1/snehabhattac/vision_data/copied_data/DRESSES/Dress/'
 TRAIN = 'train'
 VAL = 'val'
 TEST = 'test'
