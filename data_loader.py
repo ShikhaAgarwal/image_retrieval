@@ -1,8 +1,12 @@
 from torchvision import datasets, models, transforms
 import os 
+import torch
 from deep_fashion_dataset import DeepFashionDataset
 
-def data_loader(data_dir, data_type, batch_size, shuffle=True, mode='train', num_workers=4):
+TRAIN = 'train'
+VAL = 'val'
+TEST = 'test'
+def data_loader(data_dir, data_types, batch_size, shuffle=True, mode='train', num_workers=4):
     data_transforms = {
         TRAIN: transforms.Compose([
             transforms.Scale((224, 224)),
@@ -38,4 +42,7 @@ def data_loader(data_dir, data_type, batch_size, shuffle=True, mode='train', num
         for x in data_types
     }
 
+    dataset_sizes = len(image_datasets[mode])
+
+    return dataloaders, dataset_sizes
 

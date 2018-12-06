@@ -26,7 +26,7 @@ use_gpu = torch.cuda.is_available()
 
 criterion = TripletLoss(margin)
 vgg_features = model.FeatureExtractor()
-dataloader = data_loader(data_dir, data_types, batch_size)
+dataloaders, _ = data_loader(data_dir, data_types, batch_size)
 optimizer = optim.Adam(vgg_features.model.parameters(), lr=learning_rate)
 
 for i in range(num_epochs):
@@ -46,7 +46,7 @@ for i in range(num_epochs):
         loss = criterion(anchor_output, positive_output, negative_output)
         loss.backward()
         optimizer.step()  
-        loss_list.append(loss)
+        loss_list.append(loss.item())
     avg_loss = sum(loss_list) / float(len(loss))
     print "epoch = ", i, ", loss = ", avg_loss
     if (i+1) % 30 == 0:

@@ -9,7 +9,7 @@ class DeepFashionDataset(data.Dataset):
     Test: Creates fixed triplets for testing
     """
 
-    def __init__(self, root, transform=None):
+    def __init__(self, root, transform=None, mode='train'):
         classes, class_to_idx = self.find_classes(root)
         samples = self.make_dataset(root, class_to_idx)
         if len(samples) == 0:
@@ -22,6 +22,7 @@ class DeepFashionDataset(data.Dataset):
         self.samples = samples
 
         self.transform = transform
+        self.mode = mode
 
     def loader(self, path):
         # open path as file to avoid ResourceWarning (https://github.com/python-pillow/Pillow/issues/835)
@@ -71,7 +72,12 @@ class DeepFashionDataset(data.Dataset):
                     consumer.append(fname)
 
         anchor = os.path.join(path, consumer[np.random.choice(len(consumer))])
+        if self.mode == 'test':
+            return anchor, None, None, target, path
+
         pos_sample = os.path.join(path, shop[np.random.choice(len(shop))])
+        if self.mode == 'val':
+            return pos_sample, None, None, target, path
 
         neg_id = index
         while (neg_id == index):
