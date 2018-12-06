@@ -47,7 +47,7 @@ for i in range(num_epochs):
         loss.backward()
         optimizer.step()  
         loss_list.append(loss.item())
-    avg_loss = sum(loss_list) / float(len(loss))
+    avg_loss = sum(loss_list) / float(len(loss_list))
     print "epoch = ", i, ", loss = ", avg_loss
     if (i+1) % 30 == 0:
         torch.save(vgg_features.state_dict(), model_dir+"_"+str(i)+".weights")
