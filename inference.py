@@ -20,6 +20,7 @@ dataset_name = data_types[0]
 phase = data_types[0]
 
 vgg_model = model.FeatureExtractor()
+print vgg_model
 vgg_model.load_state_dict(torch.load(path))
 
 dataloaders, num_samples = data_loader(data_dir, data_types, batch_size,mode=data_types[0])
