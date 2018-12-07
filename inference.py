@@ -39,7 +39,7 @@ result = np.zeros((num_samples, out_features_size))
 result_filename = []
 i = 0
 for data in dataloaders[phase]:
-    anchor, _, _, target, path = data
+    anchor, _, _, target, paths = data
     filenames = get_path_to_filename(paths)
     result_filename += filenames
     if use_gpu:
