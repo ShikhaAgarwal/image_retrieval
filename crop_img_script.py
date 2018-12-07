@@ -3,13 +3,13 @@ import os
 from collections import defaultdict
 from shutil import copyfile
 
-data_dir = '/Users/shikha/Documents/Fall2018/ComputerVision/Project/image_retrieval/dataset/'
-dest_dir = '/Users/shikha/Documents/Fall2018/ComputerVision/Project/image_retrieval/dataset/train/'
-anno_file = data_dir + 'meta/Anno/list_bbox_consumer2shop.txt'
-category = 'DRESSES'
+#data_dir = '/Users/shikha/Documents/Fall2018/ComputerVision/Project/image_retrieval/dataset/'
+#dest_dir = '/Users/shikha/Documents/Fall2018/ComputerVision/Project/image_retrieval/dataset/train/'
+#anno_file = data_dir + 'meta/Anno/list_bbox_consumer2shop.txt'
+#category = 'DRESSES'
 
 data_dir = '/mnt/nfs/scratch1/snehabhattac/vision_data/'
-dest_dir = '/mnt/nfs/scratch1/snehabhattac/vision_data/train/'
+dest_dir = '/mnt/nfs/scratch1/snehabhattac/vision_data/val/'
 anno_file = data_dir + 'meta/Anno/list_bbox_consumer2shop.txt'
 category = 'DRESSES'
 
