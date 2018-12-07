@@ -3,6 +3,8 @@ from sklearn import cluster
 from scipy.spatial import distance
 from collections import defaultdict
 import numpy as np
+import bottleneck as bn 
+import csv
 
 data_dir = '/Users/shikha/Documents/Fall2018/ComputerVision/Project/image_retrieval/dataset/'
 # data_dir = '/mnt/nfs/scratch1/snehabhattac/vision_data/copied_data/DRESSES/Dress/'
@@ -10,9 +12,10 @@ TRAIN = 'train'
 VAL = 'val'
 TEST = 'test'
 num_cluster = 2
+top_k = 10
 clusters_out_file_name = data_dir + "clusters/skirt_cluster_name"
 clusters_out_file_data = data_dir + "clusters/skirt_cluster_data"
-output_file = data_dir + "output"
+output_file = data_dir + "output.csv"
 
 def read_data(file_name, dataset_name, image_dataset_name):
     with h5py.File(file_name, 'r') as hf:
@@ -66,17 +69,24 @@ with open(clusters_out_file_name,'w') as f_out:
 closest_centers = kmeans_cluster.predict(test_data)
 result = defaultdict(list)
 for i, data in enumerate(test_data):
-    min_distance = np.inf
     cluster_imgs_data = label_2_img_data[closest_centers[i]]
     cluster_imgs_name = label_2_img_name[closest_centers[i]]
+    distance_data = np.zeros(len(cluster_imgs_data))    
     for j, img in enumerate(cluster_imgs_data):
-        dist = distance.cosine(data, img)
-        if dist < min_distance:
-            min_distance = dist
-            matched_image = cluster_imgs_name[j]
-    result[test_img_name[i]] = matched_image
+        dist = distance.eucledian(data, img)
+        distance_data[j] = dist
+        # if dist < min_distance:
+        #     min_distance = dist
+        #     matched_image = cluster_imgs_name[j]
+    top_k_indices = bn.argpartition(distance_data,kth=top_k)
+
+    result[test_img_name[i]] = cluster_imgs_name[top_k_indices][:top_k]
 
 print result
 with open(output_file, 'w') as f_out:
+    writer = csv.writer(f_out)
     for consumer, shop in result.items():
-        f_out.write(consumer+',\t'+shop+'\n')
+        writer.writerow([consumer,shop])
+
+  
+        #f_out.write(consumer+',\t'+shop+'\n')
