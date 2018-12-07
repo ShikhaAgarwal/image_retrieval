@@ -26,11 +26,11 @@ class FeatureExtractor(nn.Module):
         anchor_output = self.model(anchor)
         positive_output = None
         negative_output = None
-
         if not positive is None:
             positive_output = self.model(positive)
         if not negative is None:
             negative_output = self.model(negative)
+        
         return anchor_output, positive_output, negative_output
 
 

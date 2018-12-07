@@ -28,8 +28,7 @@ def data_loader(data_dir, data_types, batch_size, shuffle=True, mode='train', nu
     image_datasets = {
         x: DeepFashionDataset(
             os.path.join(data_dir, x), 
-            transform=data_transforms[x],
-            mode=mode
+            transform=data_transforms[x]
         )
         for x in data_types
     }
@@ -43,6 +42,4 @@ def data_loader(data_dir, data_types, batch_size, shuffle=True, mode='train', nu
     }
 
     dataset_sizes = len(image_datasets[mode])
-
     return dataloaders, dataset_sizes
-

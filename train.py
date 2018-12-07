@@ -12,7 +12,7 @@ import torch.optim as optim
 from data_loader import data_loader
 
 data_dir = '/mnt/nfs/scratch1/snehabhattac/vision_data/'
-model_dir = '/mnt/nfs/scratch1/snehabhattac/vision_data/output_weights/'
+model_dir = '/mnt/nfs/scratch1/shikhaagarwa/saved_model/run2/'
 TRAIN = 'train'
 VAL = 'val'
 TEST = 'test'
@@ -48,8 +48,6 @@ for i in range(num_epochs):
         optimizer.step()  
         loss_list.append(loss.item())
     avg_loss = sum(loss_list) / float(len(loss_list))
-    torch.save(vgg_features.model.state_dict(), model_dir+"_"+str(i)+".weights")
-
     print "epoch = ", i, ", loss = ", avg_loss
     if (i+1) % 30 == 0:
         torch.save(vgg_features.model.state_dict(), model_dir+"_"+str(i)+".weights")

@@ -3,12 +3,15 @@ from data_loader import data_loader
 import torch
 import os
 import numpy as np
+from torch.autograd import Variable
+import h5py
 
 TRAIN = 'train'
 VAL = 'val'
 TEST = 'test'
 
-
+use_gpu = torch.cuda.is_available() 
+print "gpu = ", use_gpu
 data_dir = '/mnt/nfs/scratch1/snehabhattac/vision_data/'
 model_dir = '/mnt/nfs/scratch1/shikhaagarwa/saved_model/'
 #model_dir = '/mnt/nfs/scratch1/snehabhattac/vision_data/output_weights/'
@@ -20,7 +23,7 @@ dataset_name = data_types[0]
 phase = data_types[0]
 
 vgg_model = model.FeatureExtractor()
-print vgg_model
+#print vgg_model
 vgg_model.load_state_dict(torch.load(path))
 
 dataloaders, num_samples = data_loader(data_dir, data_types, batch_size,mode=data_types[0])
@@ -32,10 +35,10 @@ for data in dataloaders[phase]:
         anchor = Variable(anchor.cuda())
     else:
         anchor = Variable(anchor)
-    anchor_output, _, _ = vgg_model(anchor, pos_sample, neg_sample)
+    anchor_output, _, _ = vgg_model(anchor)
     start = i
     end = i+batch_size
-    result[start:end, :] = outputs
+    result[start:end, :] = anchor_output.data
     i += batch_size
 
 file_name = data_dir + data_types[0] + '_feature.h5'
