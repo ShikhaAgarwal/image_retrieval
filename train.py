@@ -13,6 +13,7 @@ from data_loader import data_loader
 
 data_dir = '/mnt/nfs/scratch1/snehabhattac/vision_data/'
 model_dir = '/mnt/nfs/scratch1/shikhaagarwa/saved_model/run2/'
+partition_file = ''
 TRAIN = 'train'
 VAL = 'val'
 TEST = 'test'
@@ -26,7 +27,7 @@ use_gpu = torch.cuda.is_available()
 
 criterion = TripletLoss(margin)
 vgg_features = model.FeatureExtractor()
-dataloaders, _ = data_loader(data_dir, data_types, batch_size)
+dataloaders, _ = data_loader(data_dir, partition_file, data_types, batch_size)
 optimizer = optim.Adam(vgg_features.model.parameters(), lr=learning_rate)
 
 for i in range(num_epochs):

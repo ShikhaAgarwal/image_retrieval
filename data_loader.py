@@ -6,7 +6,7 @@ from deep_fashion_dataset import DeepFashionDataset
 TRAIN = 'train'
 VAL = 'val'
 TEST = 'test'
-def data_loader(data_dir, data_types, batch_size, shuffle=True, mode='train', num_workers=4):
+def data_loader(data_dir, partition_file, data_types, batch_size, shuffle=True, mode='all', num_workers=4):
     data_transforms = {
         TRAIN: transforms.Compose([
             transforms.Scale((224, 224)),
@@ -27,8 +27,7 @@ def data_loader(data_dir, data_types, batch_size, shuffle=True, mode='train', nu
 
     image_datasets = {
         x: DeepFashionDataset(
-            os.path.join(data_dir, x), 
-            transform=data_transforms[x]
+            data_dir, partition_file, transform=data_transforms[x], mode
         )
         for x in data_types
     }
@@ -41,5 +40,5 @@ def data_loader(data_dir, data_types, batch_size, shuffle=True, mode='train', nu
         for x in data_types
     }
 
-    dataset_sizes = len(image_datasets[mode])
+    dataset_sizes = len(image_datasets[data_types[0]])
     return dataloaders, dataset_sizes

@@ -5,20 +5,19 @@ from PIL import Image
 
 class DeepFashionDataset(data.Dataset):
     """
-    Train: For each sample (anchor) randomly chooses a positive and negative samples
-    Test: Creates fixed triplets for testing
+    root: path to the partition file in txt
+    data_dir: path before /img/class/
+    mode: shop, comsumer or all
+    mode == all: For each sample (anchor) randomly chooses a negative sample
     """
 
-    def __init__(self, root, transform=None, mode='train'):
-        classes, class_to_idx = self.find_classes(root)
-        samples = self.make_dataset(root, class_to_idx)
+    def __init__(self, data_dir, root, transform=None, mode='all'):      
+        samples = self.make_dataset(root)
         if len(samples) == 0:
             raise(RuntimeError("Found 0 files in subfolders of: " + root + "\n"))
 
+        self.data_dir = data_dir
         self.root = root
-
-        self.classes = classes
-        self.class_to_idx = class_to_idx
         self.samples = samples
 
         self.transform = transform
@@ -30,26 +29,32 @@ class DeepFashionDataset(data.Dataset):
             img = Image.open(f)
             return img.convert('RGB')
 
-    def find_classes(self, dir):
-        classes = [d for d in os.listdir(dir) if os.path.isdir(os.path.join(dir, d))]
-        classes.sort()
-        class_to_idx = {classes[i]: i for i in range(len(classes))}
-        return classes, class_to_idx
+    # def find_classes(self, id_2_data):
+    #     classes = set()
+    #     sub_classes = set()
+    #     for data in id_2_data.values():
+    #         path = data[0][0]
+    #         path = path.strip().split('/')
+    #         classes.add(path[1])
+    #         sub_classes.add(path[2])
 
-    def make_dataset(self, dir, class_to_idx):
+    #     classes.sort()
+    #     sub_classes.sort()
+    #     class_to_idx = {classes[i]: i for i in range(len(classes))}
+    #     subclass_to_idx = {sub_classes[i]: i for i in range(len(sub_classes))}
+    #     return classes, sub_classes, class_to_idx, subclass_to_idx
+
+    def make_dataset(self, root):
         images = []
-        dir = os.path.expanduser(dir)
-        for target in sorted(os.listdir(dir)):
-            d = os.path.join(dir, target)
-            if not os.path.isdir(d):
-                continue
 
-            for root, dir_, fnames in sorted(os.walk(d)):
-                for fname in sorted(dir_):
-                    # if has_file_allowed_extension(fname, extensions):
-                    path = os.path.join(root, fname)
-                    item = (path, class_to_idx[target])
-                    images.append(item)
+        with open(root,'rb') as f_in:
+            for line in f_in:
+                splitLine = line.strip().split()
+                path = splitLine[0].strip.split('/')
+                classes = path[1]
+                sub_classes = path[2]
+                data_tuple = (splitLine, classes, sub_classes)
+                images.append(data_tuple)
 
         return images
 
@@ -61,44 +66,35 @@ class DeepFashionDataset(data.Dataset):
         Returns:
             tuple: (sample, target) where target is class_index of the target class.
         """
-        path, target = self.samples[index]
-        shop = []
-        consumer = []
-        for root_, dir_, files_ in os.walk(path):
-            for fname in files_:
-                if "shop" in fname:
-                    shop.append(fname)
-                else:
-                    consumer.append(fname)
+        path, classes, sub_classes = self.samples[index]
+        target = (classes, sub_classes)
+        idx = path[-1]
+        anchor = os.path.join(self.data_dir, path[0])
+        pos_sample = os.path.join(self.data_dir, path[1])
 
-        anchor = os.path.join(path, consumer[np.random.choice(len(consumer))])
-        if self.mode == 'test':
-            return anchor, None, None, target, path
-
-        pos_sample = os.path.join(path, shop[np.random.choice(len(shop))])
-        if self.mode == 'val':
-            return pos_sample, None, None, target, path
-
-        neg_id = index
-        while (neg_id == index):
-            neg_id = np.random.choice(len(self.samples))
-        neg_path = self.samples[neg_id][0]
-        for root_, dir_, files_ in os.walk(neg_path):
-            for fname in files_:
-                if "shop" in fname:
-                    neg_sample = os.path.join(neg_path, fname)
-                    break
+        pos_sample = self.loader(pos_sample)
+        if self.transform is not None:
+            pos_sample = self.transform(pos_sample)
+        if self.mode == 'shop':
+            return pos_sample, None, None, target, idx
 
         anchor = self.loader(anchor)
-        pos_sample = self.loader(pos_sample)
+        if self.transform is not None:
+            anchor = self.transform(anchor)
+        if self.mode == 'comsumer':
+            return anchor, None, None, target, idx
+
+        neg_id = np.random.choice(len(self.samples))
+        while (neg_id == index):
+            neg_id = np.random.choice(len(self.samples))
+        neg_path = self.samples[neg_id][0][1]
+        neg_sample = os.path.join(self.data_dir, neg_path)
         neg_sample = self.loader(neg_sample)
 
         if self.transform is not None:
-            anchor = self.transform(anchor)
-            pos_sample = self.transform(pos_sample)
             neg_sample = self.transform(neg_sample)
 
-        return anchor, pos_sample, neg_sample, target, path
+        return anchor, pos_sample, neg_sample, target, idx
 
     def __len__(self):
         return len(self.samples)

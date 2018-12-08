@@ -12,10 +12,12 @@ TEST = 'test'
 
 data_dir = '/mnt/nfs/scratch1/snehabhattac/vision_data/'
 model_dir = '/mnt/nfs/scratch1/shikhaagarwa/saved_model/'
+partition_file = ''
 #model_dir = '/mnt/nfs/scratch1/snehabhattac/vision_data/output_weights/'
 path = os.path.join(model_dir, '_15.weights')
-batch_size = 16
 data_types = [VAL]
+mode = 'shop'
+batch_size = 16
 out_features_size = 4096
 
 dataset_name = data_types[0] + '_features'
@@ -34,12 +36,12 @@ def get_path_to_filename(paths):
 vgg_model = model.FeatureExtractor()
 vgg_model.load_state_dict(torch.load(path))
 
-dataloaders, num_samples = data_loader(data_dir, data_types, batch_size,mode=data_types[0])
+dataloaders, num_samples = data_loader(data_dir, partition_file, data_types, batch_size, shuffle=False, mode=mode)
 result = np.zeros((num_samples, out_features_size))
 result_filename = []
 i = 0
 for data in dataloaders[phase]:
-    anchor, _, _, target, path = data
+    anchor, _, _, target, paths = data
     filenames = get_path_to_filename(paths)
     result_filename += filenames
     if use_gpu:
@@ -52,7 +54,7 @@ for data in dataloaders[phase]:
     result[start:end, :] = anchor_output.data
     i += batch_size
 
-file_name = data_dir + data_types[0] + '_feature.h5'
+file_name = data_dir + data_types[0] + '_' + mode + '_feature.h5'
 with h5py.File(file_name, 'w') as hf:
     hf.create_dataset(dataset_name, data=result)
     hf.create_dataset(image_dataset_name, data=result_filename)
