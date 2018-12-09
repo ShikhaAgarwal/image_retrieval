@@ -13,7 +13,7 @@ dest_dir = '/mnt/nfs/scratch1/snehabhattac/vision_data/processed_data/'
 anno_file = data_dir + 'meta/Anno/list_bbox_consumer2shop.txt'
 category = 'TROUSERS'
 
-partition_file = "dataset/list_eval_partition_val.txt"
+partition_file = "dataset/list_eval_partition_train.txt"
 i=0
 shop_bbox = defaultdict(int)
 consumer_bbox = defaultdict(int)
@@ -56,39 +56,39 @@ with open(partition_file, "rb") as p_file:
             if p_1 in path_dict.keys():
                 #print p_1
                 #if p_1 not in check_set:
-            	x1 = int(path_dict[p_1][0])
-            	y1 = int(path_dict[p_1][1])
-            	x2 = int(path_dict[p_1][2])
-            	y2 = int(path_dict[p_1][3])
-	    	crop_img_1 = p_1_img[y1:y2, x1:x2]
-            	check_set.add(p_1)
+                x1 = int(path_dict[p_1][0])
+                y1 = int(path_dict[p_1][1])
+                x2 = int(path_dict[p_1][2])
+                y2 = int(path_dict[p_1][3])
+                crop_img_1 = p_1_img[y1:y2, x1:x2]
+                check_set.add(p_1)
                 fname = p_1.split("/")[-1]
                 dir_ = p_1.split("/")[:-1]
                 #print dir_, fname
-            	dest_ = os.path.join(dest_dir,"/".join(dir_))
+                dest_ = os.path.join(dest_dir,"/".join(dir_))
                 
-            	if not os.path.exists(dest_):
-	        	os.makedirs(dest_)
-            	cv2.imwrite(dest_+ "/"+fname,crop_img_1)
-            	#print "cropped", p_1
+                if not os.path.exists(dest_):
+                os.makedirs(dest_)
+                cv2.imwrite(dest_+ "/"+fname,crop_img_1)
+                #print "cropped", p_1
             else:
                 fname = p_1.split("/")[-1]
                 dir_ = p_1.split("/")[:-1]
-            	dest_ = os.path.join(dest_dir,"/".join(dir_))
-            	if not os.path.exists(dest_):
+                dest_ = os.path.join(dest_dir,"/".join(dir_))
+                if not os.path.exists(dest_):
                     os.makedirs(dest_)
-            	cv2.imwrite(dest_,"/"+fname,crop_img_1)
-            	print "not found", p_1
+                cv2.imwrite(dest_,"/"+fname,crop_img_1)
+                print "not found", p_1
 
         if p_2 not in check_set:
             if p_2 in path_dict.keys():
-            	# _2 not in check_set:
-            	x1 = int(path_dict[p_2][0])
-            	y1 = int(path_dict[p_2][1])
-            	x2 = int(path_dict[p_2][2])
-            	y2 = int(path_dict[p_2][3])
-            	crop_img_2 = p_2_img[y1:y2, x1:x2]
-            	check_set.add(p_2)
+                # _2 not in check_set:
+                x1 = int(path_dict[p_2][0])
+                y1 = int(path_dict[p_2][1])
+                x2 = int(path_dict[p_2][2])
+                y2 = int(path_dict[p_2][3])
+                crop_img_2 = p_2_img[y1:y2, x1:x2]
+                check_set.add(p_2)
                 fname = p_2.split("/")[-1]
                 dir_ = p_2.split("/")[:-1]
 
@@ -99,8 +99,8 @@ with open(partition_file, "rb") as p_file:
                 cv2.imwrite(dest_+ "/"+fname,crop_img_2)
                 #print "cropped", p_1
 
-            	
-            	#print "cropped", p_2
+                
+                #print "cropped", p_2
             else:
                 fname = p_2.split("/")[-1]
                 dir_ = p_2.split("/")[:-1]
