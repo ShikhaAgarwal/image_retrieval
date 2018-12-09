@@ -50,7 +50,7 @@ class DeepFashionDataset(data.Dataset):
         with open(root,'rb') as f_in:
             for line in f_in:
                 splitLine = line.strip().split()
-                path = splitLine[0].strip.split('/')
+                path = splitLine[0].strip().split('/')
                 classes = path[1]
                 sub_classes = path[2]
                 data_tuple = (splitLine, classes, sub_classes)

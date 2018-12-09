@@ -27,7 +27,7 @@ def data_loader(data_dir, partition_file, data_types, batch_size, shuffle=True, 
 
     image_datasets = {
         x: DeepFashionDataset(
-            data_dir, partition_file, transform=data_transforms[x], mode
+            data_dir, partition_file, transform=data_transforms[x], mode=mode
         )
         for x in data_types
     }
