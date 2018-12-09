@@ -11,16 +11,16 @@ from loss import TripletLoss
 import torch.optim as optim
 from data_loader import data_loader
 
-data_dir = '/mnt/nfs/scratch1/snehabhattac/vision_data/'
-model_dir = '/mnt/nfs/scratch1/shikhaagarwa/saved_model/run2/'
-partition_file = ''
+data_dir = '/mnt/nfs/scratch1/snehabhattac/vision_data/processed_data/'
+model_dir = '/mnt/nfs/scratch1/shikhaagarwa/saved_model/run3/'
+partition_file = '/home/shikhaagarwa/vision/image_retrieval/dataset/list_eval_partition_train.txt'
 TRAIN = 'train'
 VAL = 'val'
 TEST = 'test'
 batch_size = 16
 phase = TRAIN
 data_types = [phase]
-num_epochs = 1
+num_epochs = 150
 margin = 0.3
 learning_rate = 0.001
 use_gpu = torch.cuda.is_available()
@@ -51,4 +51,4 @@ for i in range(num_epochs):
     avg_loss = sum(loss_list) / float(len(loss_list))
     print "epoch = ", i, ", loss = ", avg_loss
     if (i+1) % 30 == 0:
-        torch.save(vgg_features.model.state_dict(), model_dir+"_"+str(i)+".weights")
+        torch.save(vgg_features.model.state_dict(), model_dir+"_"+str(i+1)+".weights")
