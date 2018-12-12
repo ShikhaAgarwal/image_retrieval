@@ -12,10 +12,10 @@ TRAIN = 'train'
 VAL = 'val'
 TEST = 'test'
 num_cluster = 1
-top_k = 1
+top_k = 20
 clusters_out_file_name = data_dir + "clusters/skirt_cluster_name"
 clusters_out_file_data = data_dir + "clusters/skirt_cluster_data"
-output_file = data_dir + "output.csv"
+output_file = data_dir + "output_processed.csv"
 mode = "shop"
 
 data_types = [VAL]

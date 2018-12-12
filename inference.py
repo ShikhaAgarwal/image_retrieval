@@ -10,13 +10,15 @@ TRAIN = 'train'
 VAL = 'val'
 TEST = 'test'
 
-data_dir = '/mnt/nfs/scratch1/snehabhattac/vision_data/'
+data_dir = '/mnt/nfs/scratch1/snehabhattac/vision_data/processed_data/'
 model_dir = '/mnt/nfs/scratch1/snehabhattac/vision_data/saved_model/run_split_20/'
-partition_file = 'dataset/list_eval_val_10.txt'
+#model_dir = '/mnt/nfs/scratch1/shikhaagarwa/saved_model/run_10k_16/'
+
+partition_file = 'dataset/list_eval_train_1k.txt'
 #model_dir = '/mnt/nfs/scratch1/snehabhattac/vision_data/output_weights/'
 path = os.path.join(model_dir, '_50.weights')
-data_types = [VAL]
-mode = 'shop'
+data_types = [TRAIN]
+mode = 'comsumer'
 batch_size = 16
 out_features_size = 4096
 
@@ -35,6 +37,7 @@ def get_path_to_filename(paths):
 
 vgg_model = model.FeatureExtractor()
 vgg_model.model.load_state_dict(torch.load(path))
+#vgg_model.model.eval()
 
 dataloaders, num_samples = data_loader(data_dir, partition_file, data_types, batch_size, shuffle=False, mode=mode)
 result = np.zeros((num_samples, out_features_size))
@@ -52,6 +55,8 @@ for data in dataloaders[phase]:
         anchor.append(a)
         result_filename.append(p)
         count += 1
+    if count == 0:
+        continue
     result_img = torch.stack(anchor)
     #result_filename += paths
     if use_gpu:
@@ -64,7 +69,7 @@ for data in dataloaders[phase]:
     result[start:end, :] = anchor_output.data
     i += count
  
-
+print i , "last i"
 file_name = data_dir + data_types[0] + '_' + mode + '_feature.h5'
 with h5py.File(file_name, 'w') as hf:
     hf.create_dataset(dataset_name, data=result[:i,:])
