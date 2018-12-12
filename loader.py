@@ -11,7 +11,7 @@ import matplotlib.pyplot as plt
 import os
 import copy
 import h5py
-from image_folder import MyImageFolder
+from data_loader import data_loader
 from deep_fashion_dataset import DeepFashionDataset
 
 use_gpu = torch.cuda.is_available()
@@ -19,64 +19,22 @@ if use_gpu:
     print("Using CUDA")
 
 data_dir = '/Users/shikha/Documents/Fall2018/ComputerVision/Project/image_retrieval/dataset/'
+partition_file = 'dataset/list_eval_val_10.txt'
+
 TRAIN = 'train'
 VAL = 'val'
 TEST = 'test'
-batch_size = 1
+data_types = [VAL]
+mode = 'shop'
+batch_size = 16
 out_features_size = 4096
 
-phase = TRAIN
-dataset_name = "shop_feature"
-image_dataset_name = "shop_feature_image"
+file_name = data_dir + "baseline_" + data_types[0] + '_' + mode + '_feature.h5'
+dataset_name = data_types[0] + '_features'
+image_dataset_name = data_types[0] + '_image_names'
+phase = data_types[0]
 
-# phase = TEST
-# dataset_name = "consumer_feature"
-# image_dataset_name = "consumer_feature_image"
-
-# VGG-16 Takes 224x224 images as input, so we resize all of them
-data_transforms = {
-    TRAIN: transforms.Compose([
-        transforms.Scale((224, 224)),
-        transforms.ToTensor(),
-        transforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])
-    ]),
-    VAL: transforms.Compose([
-        transforms.Resize(256),
-        transforms.CenterCrop(224),
-        transforms.ToTensor(),
-    ]),
-    TEST: transforms.Compose([
-        transforms.Scale((224, 224)),
-        transforms.ToTensor(),
-        transforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])
-    ])
-}
-
-image_datasets = {
-    x: DeepFashionDataset(
-        os.path.join(data_dir, x), 
-        transform=data_transforms[x]
-    )
-    for x in [TRAIN, VAL, TEST]
-}
-
-dataloaders = {
-    x: torch.utils.data.DataLoader(
-        image_datasets[x], batch_size=batch_size,
-        shuffle=True, num_workers=4
-    )
-    for x in [TRAIN, VAL, TEST]
-}
-
-dataset_sizes = {x: len(image_datasets[x]) for x in [TRAIN, VAL, TEST]}
-print dataset_sizes[TRAIN]
-
-for x in [TRAIN, VAL, TEST]:
-    print("Loaded {} images under {}".format(dataset_sizes[x], x))
-    
-print("Classes: ")
-class_names = image_datasets[TRAIN].classes
-print(image_datasets[TRAIN].classes)
+dataloaders, num_samples = data_loader(data_dir, partition_file, data_types, batch_size, shuffle=False, mode=mode)
 
 # Load the pretrained model from pytorch
 model_urls['vgg19_bn'] = model_urls['vgg19_bn'].replace('https://', 'http://')
@@ -90,34 +48,39 @@ pre_model.classifier = nn.Sequential(*[layers])
 for param in pre_model.parameters():
     param.requires_grad = False
 
-def get_path_to_filename(paths):
-    filenames = []
-    for p in paths:
-        f = p.split('/')[-1].split('.')[0]
-        filenames.append(f)
-    return filenames
-
 # get the features as matrix for each image
 # ------- SHOP -------
-num_samples = dataset_sizes[phase]
 result = np.zeros((num_samples, out_features_size))
 result_filename = []
 i = 0
 for data in dataloaders[phase]:
-    print data
-    break
-    anchor, pos_sample, neg_sample, target, path = data
-    filenames = get_path_to_filename(paths)
-    result_filename += filenames
-    inputs, labels = Variable(inputs), Variable(labels)
-    outputs = pre_model(inputs)
-    print outputs.shape
+    anchor_list, _, _, target, paths_list = data
+    #print paths_list
+    #filenames = get_path_to_filename(paths)
+    count = 0
+    anchor = []
+    for a, p in zip(anchor_list, paths_list):
+        if p in result_filename:
+            continue
+        anchor.append(a)
+        result_filename.append(p)
+        count += 1
+    if count == 0:
+        continue
+    result_img = torch.stack(anchor)
+    #result_filename += paths
+    if use_gpu:
+        anchor = Variable(result_img.cuda())
+    else:
+        anchor = Variable(result_img)
+    anchor_output, _, _ = vgg_model(anchor)
     start = i
-    end = i+batch_size
-    result[start:end, :] = outputs
-    i += batch_size
-
-# file_name = data_dir+phase+'_feature.h5'
-# with h5py.File(file_name, 'w') as hf:
-#     hf.create_dataset(dataset_name, data=result)
-#     hf.create_dataset(image_dataset_name, data=result_filename)
+    end = i + count
+    result[start:end, :] = anchor_output.data
+    i += count
+ 
+print i , "last i"
+ 
+with h5py.File(file_name, 'w') as hf:
+    hf.create_dataset(dataset_name, data=result[:i,:])
+    hf.create_dataset(image_dataset_name, data=result_filename)
