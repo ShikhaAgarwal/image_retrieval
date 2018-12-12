@@ -12,15 +12,15 @@ import torch.optim as optim
 from data_loader import data_loader
 
 data_dir = '/mnt/nfs/scratch1/snehabhattac/vision_data/processed_data/'
-model_dir = '/mnt/nfs/scratch1/shikhaagarwa/saved_model/run3/'
-partition_file = '/home/shikhaagarwa/vision/image_retrieval/dataset/list_eval_partition_train.txt'
+model_dir = '/mnt/nfs/scratch1/snehabhattac/saved_model/run3/'
+partition_file = 'dataset/list_eval_partition_train.txt'
 TRAIN = 'train'
 VAL = 'val'
 TEST = 'test'
-batch_size = 16
+batch_size = 8
 phase = TRAIN
 data_types = [phase]
-num_epochs = 150
+num_epochs = 100
 margin = 0.3
 learning_rate = 0.001
 use_gpu = torch.cuda.is_available()
@@ -31,9 +31,11 @@ dataloaders, _ = data_loader(data_dir, partition_file, data_types, batch_size)
 optimizer = optim.Adam(vgg_features.model.parameters(), lr=learning_rate)
 
 for i in range(num_epochs):
+    print "starting epoch", i
     loss_list = []
     for data in dataloaders[phase]:
         anchor, pos_sample, neg_sample, target, path = data
+        #print anchor.shape
         if use_gpu:
             anchor = Variable(anchor.cuda())
             pos_sample = Variable(pos_sample.cuda())
@@ -50,5 +52,5 @@ for i in range(num_epochs):
         loss_list.append(loss.item())
     avg_loss = sum(loss_list) / float(len(loss_list))
     print "epoch = ", i, ", loss = ", avg_loss
-    if (i+1) % 30 == 0:
+    if (i+1) % 5 == 0:
         torch.save(vgg_features.model.state_dict(), model_dir+"_"+str(i+1)+".weights")

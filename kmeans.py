@@ -12,10 +12,11 @@ TRAIN = 'train'
 VAL = 'val'
 TEST = 'test'
 num_cluster = 1
-top_k = 20
+top_k = 1
 clusters_out_file_name = data_dir + "clusters/skirt_cluster_name"
 clusters_out_file_data = data_dir + "clusters/skirt_cluster_data"
 output_file = data_dir + "output.csv"
+mode = "shop"
 
 data_types = [VAL]
 
@@ -26,15 +27,17 @@ def read_data(file_name, dataset_name, image_dataset_name):
     return data, img_name
 
 phase = TRAIN 
-dataset_name = data_types[0] + "_features"
+dataset_name = data_types[0] +  "_features"
 image_dataset_name = data_types[0] + "_image_names"
-file_name = data_dir + data_types[0] + '_feature.h5'
+file_name = data_dir + data_types[0] + "_" + mode +'_feature.h5'
 train_data, train_img_name = read_data(file_name, dataset_name, image_dataset_name)
-
+print train_img_name
+print train_data.shape
 #phase = TEST
 #dataset_name = "consumer_feature"
 #image_dataset_name = "consumer_feature_image"
-file_name = data_dir + data_types[0] + '_feature1.h5'
+mode = "comsumer"
+file_name = data_dir + data_types[0] + "_" +mode + '_feature.h5'
 test_data, test_img_name = read_data(file_name, dataset_name, image_dataset_name)
 
 # ----- KMeans Cluster -----
@@ -50,6 +53,7 @@ print cluster_labels
 # ----- storing cluster_label:image_name mapping in a dict and file -----
 label_2_img_name = defaultdict(list)
 label_2_img_data = defaultdict(list)
+print train_img_name
 for i in range(len(cluster_labels)):
     img_name = train_img_name[i]
     label_2_img_name[cluster_labels[i]].append(img_name)
@@ -83,7 +87,7 @@ for i, data in enumerate(test_data):
     top_k_indices = bn.argpartition(distance_data,kth=top_k)
     for idx,k in enumerate(top_k_indices):
         result[test_img_name[i]].append(cluster_imgs_name[k])
-        if idx > top_k:
+        if idx >= top_k-1:
             break
     #result[test_img_name[i]] = cluster_imgs_name[top_k_indices][:top_k]
 

@@ -68,7 +68,7 @@ class DeepFashionDataset(data.Dataset):
         """
         path, classes, sub_classes = self.samples[index]
         target = (classes, sub_classes)
-        idx = path[-1]
+        idx = path
         anchor = os.path.join(self.data_dir, path[0])
         pos_sample = os.path.join(self.data_dir, path[1])
 
@@ -76,13 +76,13 @@ class DeepFashionDataset(data.Dataset):
         if self.transform is not None:
             pos_sample = self.transform(pos_sample)
         if self.mode == 'shop':
-            return pos_sample, None, None, target, idx
+            return pos_sample, 1.0, 1.0, target, idx[1]
 
         anchor = self.loader(anchor)
         if self.transform is not None:
             anchor = self.transform(anchor)
         if self.mode == 'comsumer':
-            return anchor, None, None, target, idx
+            return anchor, 1.0, 1.0, target, idx[0]
 
         neg_id = np.random.choice(len(self.samples))
         while (neg_id == index):
